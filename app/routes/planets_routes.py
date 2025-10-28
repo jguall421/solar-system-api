@@ -1,5 +1,5 @@
 from ..models.planet import Planet
-from flask import Blueprint, abort, make_response, request
+from flask import Blueprint, abort, make_response, request, Response
 from ..db import db
 # from .models.planets import planets
 planets_bp = Blueprint("planets_bp", __name__, url_prefix="/planets")
@@ -41,6 +41,69 @@ def get_all_planets():
             }
         )
     return result_list
+
+@planets_bp.get("/<id>")
+def get_one_planet(id):
+    planet = validate_planet(id)
+
+    return {
+        "id": planet.id,
+        "name": planet.name,
+        "description": planet.description,
+        "size": planet.size,
+    }
+
+# @planets_bp.get("/<id>")
+# def get_single_planet(id):
+#     planet = validate_planet(id)
+#     planet_dict = dict(
+#         id = planet.id,
+#         name =  planet.name,
+#         size= planet.size,
+#         description = planet.description
+# )
+    
+#     return planet_dict
+
+def validate_planet(id):
+    try:
+        id = int(id)
+    except ValueError:
+        bad_request_response = {"message": f"Planet id({id}) is invalid."}
+
+        abort(make_response(bad_request_response, 400))
+
+    query = db.select(Planet).where(Planet.id == id)
+    planet = db.session.scalar(query)
+    
+    if not planet:
+        response = {"message": f" planet{id} not found"}
+        abort(make_response(response, 404))
+
+    return planet
+
+@planets_bp.put("/<id>")
+def replace_planet(id):
+    planet = validate_planet(id)
+    
+    request_body = request.get_json()
+    planet.name = request_body["name"]
+    planet.size = request_body["size"]
+    planet.description = request_body["description"]
+    
+    db.session.commit()
+    
+    return Response(status = 204,mimetype ="application/json")
+
+@planets_bp.delete("/<id>")
+def del_planet(id):
+    planet = validate_planet(id)
+    
+    db.session.delete(planet)
+    
+    db.session.commit()
+    
+    return Response(status = 204,mimetype ="application/json")
 
 
 

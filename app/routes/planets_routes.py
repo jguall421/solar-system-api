@@ -1,7 +1,7 @@
 from ..models.planet import Planet
 from flask import Blueprint, abort, make_response, request, Response
 from ..db import db
-# from .models.planets import planets
+
 planets_bp = Blueprint("planets_bp", __name__, url_prefix="/planets")
 
 @planets_bp.post("")
@@ -26,10 +26,27 @@ def create_planet():
     }
     return planet_response, 201
 
+
 @planets_bp.get("")
 def get_all_planets():
-    query = db.select(Planet).order_by(Planet.id)
+    query = db.select(Planet)
+
+    name_param = request.args.get("name")
+    if name_param:
+        query = query.where(Planet.name.ilike(f"%{name_param}%"))
+
+    description_param = request.args.get("description")
+    if description_param:
+        query = query.where(Planet.description.ilike(f"%{description_param}%"))
+
+    size_param = request.args.get("size")
+    if size_param:
+        query = query.where(Planet.size.ilike(f"%{size_param}%"))
+
+    query = query.order_by(Planet.id)
+
     planets = db.session.scalars(query)
+
     result_list = []
     for planet in planets:
         result_list.append(
@@ -52,18 +69,6 @@ def get_one_planet(id):
         "description": planet.description,
         "size": planet.size,
     }
-
-# @planets_bp.get("/<id>")
-# def get_single_planet(id):
-#     planet = validate_planet(id)
-#     planet_dict = dict(
-#         id = planet.id,
-#         name =  planet.name,
-#         size= planet.size,
-#         description = planet.description
-# )
-    
-#     return planet_dict
 
 def validate_planet(id):
     try:

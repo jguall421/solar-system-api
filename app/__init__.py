@@ -1,4 +1,4 @@
-from .routes.planets_routes import planets_bp
+from .routes.planets_routes import bp
 
 from flask import Flask
 from .db import db, migrate
@@ -10,7 +10,7 @@ def create_app(config=None):
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLACLCHEMY_DATABASE_URI')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
     
     if config:
         app.config.update(config)
@@ -18,7 +18,7 @@ def create_app(config=None):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    app.register_blueprint(planets_bp)
+    app.register_blueprint(bp)
 
     return app
 

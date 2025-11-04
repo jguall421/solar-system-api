@@ -11,7 +11,7 @@ class Moon(db.Model): #child
     size: Mapped[str]
     planet_id: Mapped[Optional[int]] = mapped_column(ForeignKey("planet.id"))
     planet: Mapped[Optional["Planet"]] = relationship(back_populates="moons")
-    #caretaker: Mapped[Optional["Caretaker"]] = relationship(back_populates="cats")
+    
     
     def to_dict(self):
         moon_as_dict = {
@@ -19,7 +19,6 @@ class Moon(db.Model): #child
             "size": self.size,
             "description":self.description,
             "planet":self.planet.name if self.planet_id else None
-            #"caretaker": self.caretaker.name if self.caretaker_id else None
         }
         
         return moon_as_dict

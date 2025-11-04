@@ -1,7 +1,5 @@
 from ..db import db
 from sqlalchemy.orm import Mapped, mapped_column,relationship
-from sqlalchemy import ForeignKey
-from typing import List, Optional
 
 class Planet(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -17,8 +15,8 @@ class Planet(db.Model):
             "id":self.id,
             "name":self.name,
             "description":self.description,
-            "size":self.size
-            #"moons":self.moons
+            "size":self.size,
+            "moon_ids": [moon.id for moon in self.moons]
         }
 
     @classmethod
